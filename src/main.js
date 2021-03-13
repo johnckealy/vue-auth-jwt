@@ -1,8 +1,12 @@
-import Vue from 'vue'
-import App from './App.vue'
+import LoginForm from './components/LoginForm.vue'
+import { Auth } from './auth'
 
-Vue.config.productionTip = false
 
-new Vue({
-  render: h => h(App),
-}).$mount('#app')
+const Components = {
+  install (Vue) {
+    Vue.component('login-form', LoginForm)
+  }
+}
+
+export default Auth;
+export { Components };
