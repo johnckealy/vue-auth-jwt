@@ -2282,6 +2282,10 @@ module.exports = InterceptorManager;
 // ESM COMPAT FLAG
 __webpack_require__.r(__webpack_exports__);
 
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, "auth", function() { return /* reexport */ auth; });
+__webpack_require__.d(__webpack_exports__, "authDirects", function() { return /* reexport */ authDirects; });
+
 // CONCATENATED MODULE: ./node_modules/@vue/cli-service/lib/commands/build/setPublicPath.js
 // This file is imported into lib/wc client bundles.
 
@@ -2316,12 +2320,7 @@ var axios_default = /*#__PURE__*/__webpack_require__.n(axios);
 
 axios_default.a.defaults.withCredentials = true; // Vuex module to handle the authorizations
 
-const Auth = (config = {
-  loginEndpoint: '/login/',
-  logoutEndpoint: '/logout/',
-  userEndpoint: '/user/',
-  tokenRefreshEndpoint: '/token/refresh'
-}) => {
+const Auth = config => {
   if (!config.API_URL) {
     throw "I didn't find the URL for your backend in the" + "options. Please set the API_URL option.";
   }
@@ -2329,9 +2328,7 @@ const Auth = (config = {
   axios_default.a.defaults.baseURL = config.API_URL;
   return {
     namespaced: true,
-    getters: {
-      $axios: axios_default.a
-    },
+    getters: {},
     mutations: {
       closeLoginDialog: state => {
         state.loginDialog = false;
@@ -2362,7 +2359,7 @@ const Auth = (config = {
       },
       CHECK_TOKENS: async store => {
         try {
-          const response = await store.state.$axios({
+          const response = await axios_default()({
             url: config.userEndpoint,
             method: 'GET'
           });
@@ -2371,12 +2368,12 @@ const Auth = (config = {
           console.log('Token verify check failed. Attempting token refresh...');
 
           try {
-            await store.state.$axios({
+            await axios_default()({
               url: config.tokenRefreshEndpoint,
               data: {},
               method: 'POST'
             });
-            const response = await store.state.$axios({
+            const response = await axios_default()({
               url: config.userEndpoint,
               method: 'GET'
             });
@@ -2388,7 +2385,7 @@ const Auth = (config = {
         }
       },
       AUTH_LOGOUT: async store => {
-        const response = await store.state.$axios({
+        const response = await axios_default()({
           url: config.logoutEndpoint,
           data: {},
           method: 'POST'
@@ -2408,9 +2405,56 @@ const Auth = (config = {
 };
 
 
+// CONCATENATED MODULE: ./src/redirects.js
+/* Redirects. This method checks whether a route requires authentication,
+  then redirects the user to the login route
+   if needed. */
+const authDirects = async (to, next, store, loginFormRoute) => {
+  if (to.matched.some(route => route.meta.requiresAuth)) {
+    await store.dispatch("authenticator/CHECK_TOKENS");
+
+    if (!!store.state.authenticator.authUser) {
+      next();
+    } else {
+      store.commit("authenticator/updateRedirectUrl", to.path);
+      next(loginFormRoute);
+    }
+  } else {
+    next();
+  }
+};
+
+
 // CONCATENATED MODULE: ./src/main.js
 
-/* harmony default export */ var main = (Auth);
+
+/* This will be the base $auth function. */
+
+const auth = (state, config) => {
+  const authenticator = Auth(config);
+  state.store.registerModule('authenticator', authenticator);
+  return {
+    login(user) {
+      return state.store.dispatch("authenticator/AUTH_LOGIN", user);
+    },
+
+    logout() {
+      state.store.dispatch("authenticator/AUTH_LOGOUT");
+    },
+
+    checkTokens() {
+      state.store.dispatch("authenticator/CHECK_TOKENS");
+    },
+
+    axios: axios_default.a
+  };
+};
+
+/* harmony default export */ var main = (Auth); // This is the Vuex module
+
+ // This will be assigned to $auth
+
+ // optional: redirect to login page
 // CONCATENATED MODULE: ./node_modules/@vue/cli-service/lib/commands/build/entry-lib.js
 
 

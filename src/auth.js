@@ -4,14 +4,10 @@ import axios from 'axios'
 // the JWT tokens attached
 axios.defaults.withCredentials = true;
 
+
+
 // Vuex module to handle the authorizations
-const Auth = (
-  config = {
-    loginEndpoint: '/login/',
-    logoutEndpoint: '/logout/',
-    userEndpoint: '/user/',
-    tokenRefreshEndpoint: '/token/refresh',
-  }) => {
+const Auth = (config) => {
 
   if (!config.API_URL) {
     throw "I didn't find the URL for your backend in the" +
@@ -23,9 +19,7 @@ const Auth = (
   return {
     namespaced: true,
 
-    getters: {
-      $axios: axios
-    },
+    getters: {},
 
     mutations: {
       closeLoginDialog: (state) => {
@@ -55,14 +49,14 @@ const Auth = (
       },
       CHECK_TOKENS: async (store) => {
         try {
-          const response = await store.state.$axios({ url: config.userEndpoint, method: 'GET' })
+          const response = await axios({ url: config.userEndpoint, method: 'GET' })
           store.commit("setAuthUser", response.data);
         }
         catch (error) {
           console.log('Token verify check failed. Attempting token refresh...')
           try {
-            await store.state.$axios({ url: config.tokenRefreshEndpoint, data: {}, method: 'POST' })
-            const response = await store.state.$axios({ url: config.userEndpoint, method: 'GET' })
+            await axios({ url: config.tokenRefreshEndpoint, data: {}, method: 'POST' })
+            const response = await axios({ url: config.userEndpoint, method: 'GET' })
             console.log('response', response)
             store.commit("setAuthUser", response.data);
           }
@@ -73,7 +67,7 @@ const Auth = (
 
       },
       AUTH_LOGOUT: async (store) => {
-        const response = await store.state.$axios({ url: config.logoutEndpoint, data: {}, method: 'POST' })
+        const response = await axios({ url: config.logoutEndpoint, data: {}, method: 'POST' })
         store.commit("setAuthUser", null);
         store.commit("updateRedirectUrl", '/');
         return true
@@ -88,4 +82,4 @@ const Auth = (
     }
   }
 }
-export { Auth }
+export { Auth, axios }
