@@ -1,27 +1,17 @@
-import { Auth, axios } from './auth';
 import { authDirects } from './redirects';
+import { authMethods } from './auth-methods';
 
 
+export default {
+  install: function (Vue, options) {
+    options.router.beforeEach((to, from, next) => {
+      authDirects(to, next, options.store, options.config.loginRoute);
+    });
 
-/* This will be the base $auth function. */
-const auth = (state, config) => {
-
-  const authenticator = Auth(config)
-  state.store.registerModule('authenticator', authenticator)
-
-  return {
-    login(user) {
-      return state.store.dispatch("authenticator/AUTH_LOGIN", user);
-    },
-    logout() {
-      state.store.dispatch("authenticator/AUTH_LOGOUT");
-    },
-    checkTokens() {
-      state.store.dispatch("authenticator/CHECK_TOKENS");
-    },
-    axios: axios
-  };
+    Object.defineProperty(
+      Vue.prototype, '$auth', {
+        value: authMethods(options.store, options.config)
+      }
+    )
+  }
 }
-
-export { auth }           // This will be assigned to $auth
-export { authDirects };   // optional: redirect to login page

@@ -27,24 +27,10 @@ or
 yarn add vue-auth-jwt
 ```
 
-In the file where your Vue instance is initiated, add
-the following code:
-```javascript
-import Vue from 'vue';
-import { auth } from 'vue-auth-jwt'
+Create a file (something like `auth.js`), and place it where other external
+modules tend to go. For instance, in `@vue/cli` apps, place it in 
 
-export default (state) => {
-    const config = {
-        API_BASE_URL: 'https://localhost:8000',
-        loginEndpoint: '/login/',
-        logoutEndpoint: '/logout/',
-        tokenRefreshEndpoint: '/token/refresh/',
-        userEndpoint: '/user/'
-    }
 
-    Vue.prototype.$auth = auth(state, config)
-}
-```
 The only mandatory endpoint is `API_BASE_URL`, but it is likely
 the others will also be necessary to serve even basic JWT backends.
 
@@ -77,6 +63,10 @@ import { authDirects } from 'vue-auth-jwt'
   });
 
 ```
+As you choose which routes should be protected by the
+authorization, you can add `meta: { requiresAuth: true }`
+to each route.
+
 
 ## Configuration Options
 
@@ -164,4 +154,22 @@ Sample Usage
   async onSubmitLogout() {
     await this.$auth.logout()
   }
+```
+
+#### `logout()`
+
+Returns details about the logged in user.
+
+Sample Usage
+```javascript
+  async onSubmitLogout() {
+    await this.$auth.user()
+  }
+```
+Note: `user()` actually runs a query
+in the backend. If you just need details on
+the logged in user, you can use
+the Vuex state variable, `authUser`:
+```
+this.$store.state.authenticator.authUser
 ```

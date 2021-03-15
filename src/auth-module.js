@@ -5,21 +5,39 @@ import axios from 'axios'
 axios.defaults.withCredentials = true;
 
 
+const setDefaults = (config, param, endpoint) => {
+  if (!config[param]) {
+    console.warn(`vue-auth-jwt: I didn't find the ${param} ` +
+      `configuration option. Using the default value '${endpoint}'`);
+    config[param] = endpoint;
+  }
+}
+
 
 // Vuex module to handle the authorizations
-const Auth = (config) => {
+const authModule = (config) => {
 
   if (!config.API_BASE_URL) {
     throw "I didn't find the URL for your backend in the" +
     "options. Please set the API_BASE_URL option.";
   }
+  setDefaults(config, 'loginEndpoint', '/login/')
+  setDefaults(config, 'logoutEndpoint', '/logout/')
+  setDefaults(config, 'tokenRefreshEndpoint', '/token/refresh/')
+  setDefaults(config, 'userEndpoint', '/user/')
+  setDefaults(config, 'loginRoute', '/login')
+
 
   axios.defaults.baseURL = config.API_BASE_URL;
 
   return {
     namespaced: true,
 
-    getters: {},
+    getters: {
+      authUser: (state) => {
+        return state.authUser
+      }
+    },
 
     mutations: {
       closeLoginDialog: (state) => {
@@ -71,6 +89,10 @@ const Auth = (config) => {
         store.commit("setAuthUser", null);
         store.commit("updateRedirectUrl", '/');
         return true
+      },
+      AUTH_USER: async (store) => {
+        const response = await axios({ url: config.userEndpoint, method: 'GET' })
+        return response.data
       }
     },
 
@@ -78,10 +100,9 @@ const Auth = (config) => {
       return {
         loginDialog: false,
         redirectUrl: '/',
-        authToken: null,
         authUser: null
       }
     }
   }
 }
-export { Auth, axios }
+export { authModule, axios }

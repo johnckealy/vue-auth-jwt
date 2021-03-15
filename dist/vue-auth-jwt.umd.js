@@ -91,7 +91,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "fae3");
+/******/ 	return __webpack_require__(__webpack_require__.s = "fb15");
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -2284,16 +2284,12 @@ module.exports = InterceptorManager;
 
 /***/ }),
 
-/***/ "fae3":
+/***/ "fb15":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 // ESM COMPAT FLAG
 __webpack_require__.r(__webpack_exports__);
-
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, "auth", function() { return /* reexport */ auth; });
-__webpack_require__.d(__webpack_exports__, "authDirects", function() { return /* reexport */ authDirects; });
 
 // CONCATENATED MODULE: ./node_modules/@vue/cli-service/lib/commands/build/setPublicPath.js
 // This file is imported into lib/wc client bundles.
@@ -2319,25 +2315,61 @@ if (typeof window !== 'undefined') {
 // Indicate to webpack that this file can be concatenated
 /* harmony default export */ var setPublicPath = (null);
 
+// CONCATENATED MODULE: ./src/redirects.js
+/* Redirects. This method checks whether a route requires authentication,
+   then redirects the user to the login route if needed. */
+const authDirects = async (to, next, store, loginFormRoute) => {
+  if (to.matched.some(route => route.meta.requiresAuth)) {
+    await store.dispatch("authenticator/CHECK_TOKENS");
+
+    if (!!store.state.authenticator.authUser) {
+      next();
+    } else {
+      store.commit("authenticator/updateRedirectUrl", to.path);
+      next(loginFormRoute);
+    }
+  } else {
+    next();
+  }
+};
+
+
 // EXTERNAL MODULE: ./node_modules/axios/index.js
 var axios = __webpack_require__("bc3a");
 var axios_default = /*#__PURE__*/__webpack_require__.n(axios);
 
-// CONCATENATED MODULE: ./src/auth.js
+// CONCATENATED MODULE: ./src/auth-module.js
  // Sends all the backend requests with
 // the JWT tokens attached
 
-axios_default.a.defaults.withCredentials = true; // Vuex module to handle the authorizations
+axios_default.a.defaults.withCredentials = true;
 
-const Auth = config => {
+const setDefaults = (config, param, endpoint) => {
+  if (!config[param]) {
+    console.warn(`vue-auth-jwt: I didn't find the ${param} ` + `configuration option. Using the default value '${endpoint}'`);
+    config[param] = endpoint;
+  }
+}; // Vuex module to handle the authorizations
+
+
+const authModule = config => {
   if (!config.API_BASE_URL) {
     throw "I didn't find the URL for your backend in the" + "options. Please set the API_BASE_URL option.";
   }
 
+  setDefaults(config, 'loginEndpoint', '/login/');
+  setDefaults(config, 'logoutEndpoint', '/logout/');
+  setDefaults(config, 'tokenRefreshEndpoint', '/token/refresh/');
+  setDefaults(config, 'userEndpoint', '/user/');
+  setDefaults(config, 'loginRoute', '/login');
   axios_default.a.defaults.baseURL = config.API_BASE_URL;
   return {
     namespaced: true,
-    getters: {},
+    getters: {
+      authUser: state => {
+        return state.authUser;
+      }
+    },
     mutations: {
       closeLoginDialog: state => {
         state.loginDialog = false;
@@ -2402,6 +2434,13 @@ const Auth = config => {
         store.commit("setAuthUser", null);
         store.commit("updateRedirectUrl", '/');
         return true;
+      },
+      AUTH_USER: async store => {
+        const response = await axios_default()({
+          url: config.userEndpoint,
+          method: 'GET'
+        });
+        return response.data;
       }
     },
 
@@ -2409,7 +2448,6 @@ const Auth = config => {
       return {
         loginDialog: false,
         redirectUrl: '/',
-        authToken: null,
         authUser: null
       };
     }
@@ -2418,56 +2456,60 @@ const Auth = config => {
 };
 
 
-// CONCATENATED MODULE: ./src/redirects.js
-/* Redirects. This method checks whether a route requires authentication,
-  then redirects the user to the login route
-   if needed. */
-const authDirects = async (to, next, store, loginFormRoute) => {
-  if (to.matched.some(route => route.meta.requiresAuth)) {
-    await store.dispatch("authenticator/CHECK_TOKENS");
-
-    if (!!store.state.authenticator.authUser) {
-      next();
-    } else {
-      store.commit("authenticator/updateRedirectUrl", to.path);
-      next(loginFormRoute);
-    }
-  } else {
-    next();
-  }
-};
-
-
-// CONCATENATED MODULE: ./src/main.js
-
+// CONCATENATED MODULE: ./src/auth-methods.js
 
 /* This will be the base $auth function. */
 
-const auth = (state, config) => {
-  const authenticator = Auth(config);
-  state.store.registerModule('authenticator', authenticator);
+const authMethods = (store, config) => {
+  const authenticator = authModule(config);
+  store.registerModule('authenticator', authenticator);
   return {
     login(user) {
-      return state.store.dispatch("authenticator/AUTH_LOGIN", user);
+      return store.dispatch("authenticator/AUTH_LOGIN", user);
     },
 
     logout() {
-      state.store.dispatch("authenticator/AUTH_LOGOUT");
+      store.dispatch("authenticator/AUTH_LOGOUT");
+    },
+
+    state() {
+      return store.state;
     },
 
     checkTokens() {
-      state.store.dispatch("authenticator/CHECK_TOKENS");
+      store.dispatch("authenticator/CHECK_TOKENS");
+    },
+
+    user(backend = false) {
+      if (backend) {
+        return store.dispatch("authenticator/AUTH_USER");
+      } else {
+        return store.getters['authenticator/authUser'];
+      }
     },
 
     axios: axios_default.a
   };
 };
 
- // This will be assigned to $auth
 
- // optional: redirect to login page
-// CONCATENATED MODULE: ./node_modules/@vue/cli-service/lib/commands/build/entry-lib-no-default.js
+// CONCATENATED MODULE: ./src/main.js
 
+
+/* harmony default export */ var main = ({
+  install: function (Vue, options) {
+    options.router.beforeEach((to, from, next) => {
+      authDirects(to, next, options.store, options.config.loginRoute);
+    });
+    Object.defineProperty(Vue.prototype, '$auth', {
+      value: authMethods(options.store, options.config)
+    });
+  }
+});
+// CONCATENATED MODULE: ./node_modules/@vue/cli-service/lib/commands/build/entry-lib.js
+
+
+/* harmony default export */ var entry_lib = __webpack_exports__["default"] = (main);
 
 
 
