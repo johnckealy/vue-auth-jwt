@@ -9,12 +9,12 @@ axios.defaults.withCredentials = true;
 // Vuex module to handle the authorizations
 const Auth = (config) => {
 
-  if (!config.API_URL) {
+  if (!config.API_BASE_URL) {
     throw "I didn't find the URL for your backend in the" +
-    "options. Please set the API_URL option.";
+    "options. Please set the API_BASE_URL option.";
   }
 
-  axios.defaults.baseURL = config.API_URL;
+  axios.defaults.baseURL = config.API_BASE_URL;
 
   return {
     namespaced: true,
@@ -74,11 +74,13 @@ const Auth = (config) => {
       }
     },
 
-    state: {
-      loginDialog: false,
-      redirectUrl: '/',
-      authToken: null,
-      authUser: null
+    state() {
+      return {
+        loginDialog: false,
+        redirectUrl: '/',
+        authToken: null,
+        authUser: null
+      }
     }
   }
 }

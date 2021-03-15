@@ -82,7 +82,7 @@ module.exports =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "fb15");
+/******/ 	return __webpack_require__(__webpack_require__.s = "fae3");
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -2275,7 +2275,7 @@ module.exports = InterceptorManager;
 
 /***/ }),
 
-/***/ "fb15":
+/***/ "fae3":
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2321,11 +2321,11 @@ var axios_default = /*#__PURE__*/__webpack_require__.n(axios);
 axios_default.a.defaults.withCredentials = true; // Vuex module to handle the authorizations
 
 const Auth = config => {
-  if (!config.API_URL) {
-    throw "I didn't find the URL for your backend in the" + "options. Please set the API_URL option.";
+  if (!config.API_BASE_URL) {
+    throw "I didn't find the URL for your backend in the" + "options. Please set the API_BASE_URL option.";
   }
 
-  axios_default.a.defaults.baseURL = config.API_URL;
+  axios_default.a.defaults.baseURL = config.API_BASE_URL;
   return {
     namespaced: true,
     getters: {},
@@ -2395,12 +2395,16 @@ const Auth = config => {
         return true;
       }
     },
-    state: {
-      loginDialog: false,
-      redirectUrl: '/',
-      authToken: null,
-      authUser: null
+
+    state() {
+      return {
+        loginDialog: false,
+        redirectUrl: '/',
+        authToken: null,
+        authUser: null
+      };
     }
+
   };
 };
 
@@ -2450,15 +2454,11 @@ const auth = (state, config) => {
   };
 };
 
-/* harmony default export */ var main = (Auth); // This is the Vuex module
-
  // This will be assigned to $auth
 
  // optional: redirect to login page
-// CONCATENATED MODULE: ./node_modules/@vue/cli-service/lib/commands/build/entry-lib.js
+// CONCATENATED MODULE: ./node_modules/@vue/cli-service/lib/commands/build/entry-lib-no-default.js
 
-
-/* harmony default export */ var entry_lib = __webpack_exports__["default"] = (main);
 
 
 
