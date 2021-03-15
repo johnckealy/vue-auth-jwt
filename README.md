@@ -45,14 +45,19 @@ export default (state) => {
     Vue.prototype.$auth = auth(state, config)
 }
 ```
-The only mandatory endpoint is `API_BASE_URL`, but it likely
-the others will be necessary to serve even basic JWT backends.
+The only mandatory endpoint is `API_BASE_URL`, but it is likely
+the others will also be necessary to serve even basic JWT backends.
 
 ### Authorization and redirection
 
+If an authenticated route is requested, `vue-auth-jwt` will attempt to
+validate the user's cookies, and will redirect the user to a
+login screen if they cannot be verified.
+
 To use redirection, there is an extra installation step. In your
 Vue application's router file (this is located in `src/routes/index.js`
-for @vue/cli and QuasarFramework apps), add the following:
+for @vue/cli and QuasarFramework apps), add the following code after
+the router instance has been declared:
 
 ```javascript
 
@@ -60,10 +65,9 @@ import { authDirects } from 'vue-auth-jwt'
 
   ...
 
-export default function ({ store, ssrContext }) {
   const Router = new VueRouter({
-
     ...
+  }
 
   // Add this method in your router instance.
   // '/login' should be replaced with the
@@ -72,8 +76,6 @@ export default function ({ store, ssrContext }) {
     authDirects(to, next, store, '/login');
   });
 
-    ...
-}
 ```
 
 ## Configuration Options
