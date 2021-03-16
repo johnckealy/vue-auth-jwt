@@ -6,6 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build --target lib --name vue-auth-jwt src/main.js"
   },
+  "keywords": ["vue", "jwt", "authentication", "axios", "token"],
   "dependencies": {
     "axios": "^0.21.1",
     "core-js": "^3.6.5",

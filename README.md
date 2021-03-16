@@ -10,7 +10,7 @@ a JWT (JSON Web Token) powered authentication backend.
 
 It provides simple simple Vuex-based methods that apply the correct credentials and request
 styles to easily add the JWT access tokens in the request headers, and refresh them
-when appropriate.
+when appropriate. 
 
 Also included is an instance of the Axios package, so there is no need to install this separately.
 
