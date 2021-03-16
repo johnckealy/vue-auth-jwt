@@ -1,19 +1,37 @@
+![image](https://raw.githubusercontent.com/johnckealy/vue-auth-jwt/main/logo/logo.png)
+
+
 # Vue Auth JWT
 
-Vue Auth JWT is a lightweight library for communicating your Vue application with
-a JWT (JSON Web Tokens) powered authentication backend.
+Vue Auth JWT is a lightweight Vue plugin for communicating your Vue application with
+a JWT (JSON Web Token) powered authentication backend.
 
-It provides simple Vuex functions that apply the correct credentials and request
-styles to easily add the JWT access tokens in the header, and refresh them
+It provides simple simple Vuex-based methods that apply the correct credentials and request
+styles to easily add the JWT access tokens in the request headers, and refresh them
 when appropriate.
+
+Also included is an instance of the Axios package, so there is no need to install this separately.
 
 ## Requirements
 
-– A working Vue.js application (Including Vue frameworks, like Nuxt or Quasar)
+Vue Auth JWT does not make use of localStorage, which is vunerable to cross-site scripting (XSS) attacks.
+Instead, it assumes that the application's backend uses `httpOnly` cookies, which javascript has
+no access to.
+
+For this reason, to make the library work, your backend must set the tokens directly. For example,
+if you're a Python user, the Django library `dj-rest-auth` has a setting for JWT which sends the cookies in
+just the right way. Whatever backend you use, be sure the tokens are sent directly as httpOnly cookies,
+and be sure CORS is set up correctly.
+
+You will also need:
+
+– A working Vue.js application (including Vue frameworks, like Nuxt or Quasar)
 
 – A working JWT backend, such as Django Simple JWT
 
 – A Vuex store installed
+
+– A Vue router instance
 
 ## Installation
 
@@ -27,12 +45,42 @@ or
 yarn add vue-auth-jwt
 ```
 
-Create a file (something like `auth.js`), and place it where other external
-modules tend to go. For instance, in `@vue/cli` apps, place it in 
+Then to instantiate the plugin by adding:
+
+```javascript
+    const config = {
+      API_BASE_URL: 'https://api.example.com:8000/',
+    }
+
+    Vue.use(Auth, { router, store, config  });
+```
+
+The location of this code will vary depending on your set up,
+but it must have access to the Vue Router and Vue Store instances.
+
+The only mandatory endpoint to add to the configuration is `API_BASE_URL`,
+but it is likely that others will also be necessary to serve even basic JWT backends.
+The full list of configuatino options can be found in the `Configuration Options`
+section.
 
 
-The only mandatory endpoint is `API_BASE_URL`, but it is likely
-the others will also be necessary to serve even basic JWT backends.
+### TLS and `same-site` concerns
+
+Although `vue-auth-jwt` has been written with decoupling between frontend and backend in mind,
+it may be necessary to host both frontend and backend at the same domain. However, subdomains
+are fine, so if you run your site at `example.com`, you can still host your backend at `api.example.com`.
+To get up and running in your development environment, you can set the localhost IP address (usually 127.0.0.1)
+to a custom domain in your hosts file (this will be `/etc/hosts` in Unix), and then run your dev environment at
+something like
+```
+https://api.example.com:8000
+```
+
+Note the `https` here. It may also be necessary to use SSL/TLS (even in your development environment)
+and run your backend within the remit of the `same-site` attribute. There exist libraries
+(like `django-sslserver` in Python) that will allow you to run with a self-signed SSL certificate for development.
+Please read [this page](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite) to learn more about the `same-site` attribute.
+
 
 ### Authorization and redirection
 
@@ -40,32 +88,12 @@ If an authenticated route is requested, `vue-auth-jwt` will attempt to
 validate the user's cookies, and will redirect the user to a
 login screen if they cannot be verified.
 
-To use redirection, there is an extra installation step. In your
-Vue application's router file (this is located in `src/routes/index.js`
-for @vue/cli and QuasarFramework apps), add the following code after
-the router instance has been declared:
-
-```javascript
-
-import { authDirects } from 'vue-auth-jwt'
-
-  ...
-
-  const Router = new VueRouter({
-    ...
-  }
-
-  // Add this method in your router instance.
-  // '/login' should be replaced with the
-  // route to your Vue app's login form.
-  Router.beforeEach((to, from, next) => {
-    authDirects(to, next, store, '/login');
-  });
-
-```
 As you choose which routes should be protected by the
-authorization, you can add `meta: { requiresAuth: true }`
+authorization, simply add `meta: { requiresAuth: true }`
 to each route.
+
+For more information on the `meta` attribute, have a look at
+[this](https://router.vuejs.org/guide/advanced/meta.html).
 
 
 ## Configuration Options
@@ -75,14 +103,14 @@ default   `'/login/'`
 
 HTTP verb    `POST`
 
-This is the name of your backend API endpoint for logging in
+This sets the name of your backend's API endpoint for logging in.
 
 ##### logoutEndpoint
 default      `'/logout/'`
 
 HTTP verb    `POST`
 
-This is the name of your backend API endpoint for logging out
+This sets the name of your backend's API endpoint for logging out.
 
 ##### tokenRefreshEndpoint:
 default       `'/token/refresh'`
@@ -90,7 +118,7 @@ default       `'/token/refresh'`
 HTTP verb     `POST`
 
 For refreshing the JWT access token. This will usually be done automatically
-by vue-auth-jwt when appropriate
+by `vue-auth-jwt` when appropriate.
 
 ##### userEndpoint:
 default       `'/user/'`
@@ -98,20 +126,18 @@ default       `'/user/'`
 HTTP verb     `GET`
 
 Endpoint for obtaing details about the logged in user. Should return
-an object containing user details
-
+an object containing user details (e.g. first_name, username, email, etc.).
 
 ## API Reference
 
 The following functions belong to the `$auth` method
 set in the installation step.
 
-
 #### `axios()`
 An instance of the Axios package, configured to handle
 the JWT credentials automatically. The baseURL configuration
-is already set to the given API_BASE_URL value.
-You can use this function just as you any normal axios request.
+is already set to the given `API_BASE_URL` value.
+You can use this function just as you would any normal `axios` request.
 
 Sample Usage
 ```javascript
@@ -139,7 +165,7 @@ Sample Usage
 ```javascript
   async onSubmitLogin() {
     const loginOk = await this.$auth.login({
-      username: 'phil',
+      username: 'bojangles',
       password: 'secret123'
     })
   }
@@ -156,20 +182,23 @@ Sample Usage
   }
 ```
 
-#### `logout()`
+#### `user()`
 
-Returns details about the logged in user.
+Returns details about the logged in user. If `backend` is
+set to `false` (default), the method will simply return the
+user details currently set in the Vuex state. To query the
+backend for the up-to-date user info, set `backend=true`.
 
 Sample Usage
 ```javascript
   async onSubmitLogout() {
-    await this.$auth.user()
+    const user = await this.$auth.user(backend=false)
   }
 ```
-Note: `user()` actually runs a query
-in the backend. If you just need details on
-the logged in user, you can use
-the Vuex state variable, `authUser`:
-```
-this.$store.state.authenticator.authUser
-```
+
+
+# Contributions
+
+`vue-auth-jwt` is a very young open source tool, and I would be very
+happy to welcome contributors. If you would like
+to contribute, send me an email at `johnckealy.dev@gmail.com`.
