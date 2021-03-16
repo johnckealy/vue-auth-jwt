@@ -1,6 +1,12 @@
 ![image](https://raw.githubusercontent.com/johnckealy/vue-auth-jwt/main/logo/logo.png)
 
 
+<img src="https://raw.githubusercontent.com/johnckealy/vue-auth-jwt/main/logo/logo.png"
+     alt="logo image" width="160"
+         style="margin-right: 20%;
+    margin-left: auto;
+    margin-left: auto;" />
+
 # Vue Auth JWT
 
 Vue Auth JWT is a lightweight Vue plugin for communicating your Vue application with
