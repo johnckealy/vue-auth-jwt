@@ -1,10 +1,9 @@
-![image](https://raw.githubusercontent.com/johnckealy/vue-auth-jwt/main/logo/logo.png)
 
 
 <img src="https://raw.githubusercontent.com/johnckealy/vue-auth-jwt/main/logo/logo.png"
      alt="logo image" width="160"
          style="margin-right: 20%;
-    margin-left: auto;
+    margin-right: 0;
     margin-left: auto;" />
 
 # Vue Auth JWT
