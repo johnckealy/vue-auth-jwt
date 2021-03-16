@@ -1,10 +1,7 @@
 
 
 <img src="https://raw.githubusercontent.com/johnckealy/vue-auth-jwt/main/logo/logo.png"
-     alt="logo image" width="160"
-         style="margin-right: 20%;
-    margin-right: 0;
-    margin-left: auto;" />
+     alt="logo image" width="160" />
 
 # Vue Auth JWT
 
@@ -50,7 +47,7 @@ or
 yarn add vue-auth-jwt
 ```
 
-Then to instantiate the plugin by adding:
+Then instantiate the plugin by adding:
 
 ```javascript
     const config = {
@@ -65,8 +62,8 @@ but it must have access to the Vue Router and Vue Store instances.
 
 The only mandatory endpoint to add to the configuration is `API_BASE_URL`,
 but it is likely that others will also be necessary to serve even basic JWT backends.
-The full list of configuatino options can be found in the `Configuration Options`
-section.
+The full list of configuation options can be found in the `Configuration Options`
+section below.
 
 
 ### TLS and `same-site` concerns
@@ -74,7 +71,11 @@ section.
 Although `vue-auth-jwt` has been written with decoupling between frontend and backend in mind,
 it may be necessary to host both frontend and backend at the same domain. However, subdomains
 are fine, so if you run your site at `example.com`, you can still host your backend at `api.example.com`.
-To get up and running in your development environment, you can set the localhost IP address (usually 127.0.0.1)
+
+While using these subdomain names will be trivial in production, setting up a development environment with domain names
+and SSL is less obvious.
+
+You can set the localhost IP address (usually 127.0.0.1)
 to a custom domain in your hosts file (this will be `/etc/hosts` in Unix), and then run your dev environment at
 something like
 ```
@@ -84,7 +85,8 @@ https://api.example.com:8000
 Note the `https` here. It may also be necessary to use SSL/TLS (even in your development environment)
 and run your backend within the remit of the `same-site` attribute. There exist libraries
 (like `django-sslserver` in Python) that will allow you to run with a self-signed SSL certificate for development.
-Please read [this page](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite) to learn more about the `same-site` attribute.
+
+If you'd like to read more about the `same-site` attribute, please follow [this link](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite).
 
 
 ### Authorization and redirection
@@ -133,10 +135,29 @@ HTTP verb     `GET`
 Endpoint for obtaing details about the logged in user. Should return
 an object containing user details (e.g. first_name, username, email, etc.).
 
+##### loginRoute:
+default       `'/login'`
+
+HTTP verb     `None`
+
+Rather than being an endpoint on the external API, the `loginRoute` configuration option
+is for the login page i.e. it is one of the internal Vue router paths. If
+a user is not authorized to visit a page, this is the page they will
+instead be directed to. This page can be anything, but is mostly typically
+composed of a login form component.  
+
+
+
 ## API Reference
 
-The following functions belong to the `$auth` method
+When initialized, `vue-auth-jwt` provides access to its methods from anywhere in the Vue app
+through the use of the global `$auth` attribute. `$auth` has access to the methods detailed
+below.
+
+The following methods belong to the `$auth` attribute
 set in the installation step.
+
+
 
 #### `axios()`
 An instance of the Axios package, configured to handle
@@ -151,13 +172,12 @@ Sample Usage
   }
 ```
 
+
+
 #### `checkTokens()`
 
 Verifies that the JWT access tokens are still valid, and attempts
 to refresh them if they are not.
-
-If you've installed the `authDirects` methods in your router index file,
-this will be called automatically when authenticated routes are requested.
 
 
 #### `login()`
@@ -187,6 +207,8 @@ Sample Usage
   }
 ```
 
+
+
 #### `user()`
 
 Returns details about the logged in user. If `backend` is
@@ -196,10 +218,11 @@ backend for the up-to-date user info, set `backend=true`.
 
 Sample Usage
 ```javascript
-  async onSubmitLogout() {
+  async getUserDetails() {
     const user = await this.$auth.user(backend=false)
   }
 ```
+
 
 
 # Contributions
