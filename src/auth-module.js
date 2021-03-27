@@ -75,7 +75,7 @@ const authModule = (config) => {
         catch (e) {
           let errorMessages = [];
           Object.values(e.response.data).forEach(message => {
-            if (typeof message[Symbol.iterator] === 'function') {
+            if (Array.isArray(message)) {
               message.forEach(m => {
                 errorMessages.push(m)
               })
