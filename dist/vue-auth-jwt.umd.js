@@ -2362,6 +2362,7 @@ const authModule = config => {
   setDefaults(config, 'tokenRefreshEndpoint', '/token/refresh/');
   setDefaults(config, 'userEndpoint', '/user/');
   setDefaults(config, 'loginRoute', '/login');
+  setDefaults(config, 'registrationEndpoint', '/register/');
   axios_default.a.defaults.baseURL = config.API_BASE_URL;
   return {
     namespaced: true,
@@ -2396,6 +2397,27 @@ const authModule = config => {
           return true;
         } catch {
           return false;
+        }
+      },
+      REGISTER: async (store, user) => {
+        try {
+          const response = await axios_default()({
+            url: config.registrationEndpoint,
+            data: user,
+            method: 'POST'
+          });
+          store.commit("setAuthUser", response.data.user);
+          return response;
+        } catch (e) {
+          let errorMessages = [];
+          Object.values(e.response.data).forEach(message => {
+            if (typeof message[Symbol.iterator] === 'function') {
+              message.forEach(m => {
+                errorMessages.push(m);
+              });
+            }
+          });
+          return errorMessages;
         }
       },
       CHECK_TOKENS: async store => {
@@ -2464,6 +2486,12 @@ const authMethods = (store, config) => {
   const authenticator = authModule(config);
   store.registerModule('authenticator', authenticator);
   return {
+    axios: axios_default.a,
+
+    checkTokens() {
+      store.dispatch("authenticator/CHECK_TOKENS");
+    },
+
     login(user) {
       return store.dispatch("authenticator/AUTH_LOGIN", user);
     },
@@ -2472,12 +2500,12 @@ const authMethods = (store, config) => {
       store.dispatch("authenticator/AUTH_LOGOUT");
     },
 
-    state() {
-      return store.state;
+    register(user) {
+      return store.dispatch("authenticator/REGISTER", user);
     },
 
-    checkTokens() {
-      store.dispatch("authenticator/CHECK_TOKENS");
+    state() {
+      return store.state;
     },
 
     user(backend = false) {
@@ -2486,9 +2514,8 @@ const authMethods = (store, config) => {
       } else {
         return store.getters['authenticator/authUser'];
       }
-    },
+    }
 
-    axios: axios_default.a
   };
 };
 

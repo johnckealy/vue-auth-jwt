@@ -26,6 +26,7 @@ const authModule = (config) => {
   setDefaults(config, 'tokenRefreshEndpoint', '/token/refresh/')
   setDefaults(config, 'userEndpoint', '/user/')
   setDefaults(config, 'loginRoute', '/login')
+  setDefaults(config, 'registrationEndpoint', '/register/')
 
 
   axios.defaults.baseURL = config.API_BASE_URL;
@@ -65,6 +66,24 @@ const authModule = (config) => {
           return false
         }
       },
+      REGISTER: async (store, user) => {
+        try {
+          const response = await axios({ url: config.registrationEndpoint, data: user, method: 'POST' })
+          store.commit("setAuthUser", response.data.user);
+          return response
+        }
+        catch (e) {
+          let errorMessages = [];
+          Object.values(e.response.data).forEach(message => {
+            if (typeof message[Symbol.iterator] === 'function') {
+              message.forEach(m => {
+                errorMessages.push(m)
+              })
+            }
+          })
+          return errorMessages
+        }
+      },
       CHECK_TOKENS: async (store) => {
         try {
           const response = await axios({ url: config.userEndpoint, method: 'GET' })
@@ -82,7 +101,6 @@ const authModule = (config) => {
             console.log('Token refresh attempt failed.')
           }
         }
-
       },
       AUTH_LOGOUT: async (store) => {
         const response = await axios({ url: config.logoutEndpoint, data: {}, method: 'POST' })

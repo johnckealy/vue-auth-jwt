@@ -18,6 +18,9 @@ const authMethods = (store, config) => {
     logout() {
       store.dispatch("authenticator/AUTH_LOGOUT");
     },
+    register(user) {
+      return store.dispatch("authenticator/REGISTER", user);
+    },
     state() {
       return store.state;
     },
