@@ -27,6 +27,7 @@ const authModule = (config) => {
   setDefaults(config, 'userEndpoint', '/user/')
   setDefaults(config, 'loginRoute', '/login')
   setDefaults(config, 'registrationEndpoint', '/register/')
+  setDefaults(config, 'defaultRedirectUrl', '/')
 
 
   axios.defaults.baseURL = config.API_BASE_URL;
@@ -115,7 +116,7 @@ const authModule = (config) => {
       AUTH_LOGOUT: async (store) => {
         const response = await axios({ url: config.logoutEndpoint, data: {}, method: 'POST' })
         store.commit("setAuthUser", null);
-        store.commit("updateRedirectUrl", '/');
+        store.commit("updateRedirectUrl", config.defaultRedirectUrl);
         return true
       },
       AUTH_USER: async (store) => {
