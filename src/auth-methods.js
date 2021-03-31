@@ -21,6 +21,9 @@ const authMethods = (store, config) => {
     register(user) {
       return store.dispatch("authenticator/REGISTER", user);
     },
+    redirectUrl() {
+      return store.getters["authenticator/redirectUrl"];
+    },
     state() {
       return store.state;
     },

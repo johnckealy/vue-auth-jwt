@@ -35,9 +35,8 @@ const authModule = (config) => {
     namespaced: true,
 
     getters: {
-      authUser: (state) => {
-        return state.authUser
-      }
+      authUser: (state) => state.authUser,
+      redirectUrl: (state) => state.redirectUrl
     },
 
     mutations: {
@@ -60,10 +59,21 @@ const authModule = (config) => {
         try {
           const response = await axios({ url: config.loginEndpoint, data: user, method: 'POST' })
           store.commit("setAuthUser", response.data.user);
-          return true
+          return response
         }
-        catch {
-          return false
+        catch (e) {
+          let errorMessages = [];
+          if (!e.response) {
+            return ['Oops! There was an problem on our end. Please try agin later.']
+          }
+          Object.values(e.response.data).forEach(message => {
+            if (Array.isArray(message)) {
+              message.forEach(m => {
+                errorMessages.push(m)
+              })
+            }
+          })
+          return errorMessages
         }
       },
       REGISTER: async (store, user) => {
@@ -81,6 +91,7 @@ const authModule = (config) => {
               })
             }
           })
+
           return errorMessages
         }
       },
@@ -94,7 +105,6 @@ const authModule = (config) => {
           try {
             await axios({ url: config.tokenRefreshEndpoint, data: {}, method: 'POST' })
             const response = await axios({ url: config.userEndpoint, method: 'GET' })
-            console.log('response', response)
             store.commit("setAuthUser", response.data);
           }
           catch {

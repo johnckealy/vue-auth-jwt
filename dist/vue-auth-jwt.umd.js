@@ -2367,9 +2367,8 @@ const authModule = config => {
   return {
     namespaced: true,
     getters: {
-      authUser: state => {
-        return state.authUser;
-      }
+      authUser: state => state.authUser,
+      redirectUrl: state => state.redirectUrl
     },
     mutations: {
       closeLoginDialog: state => {
@@ -2394,9 +2393,23 @@ const authModule = config => {
             method: 'POST'
           });
           store.commit("setAuthUser", response.data.user);
-          return true;
-        } catch {
-          return false;
+          return response;
+        } catch (e) {
+          let errorMessages = [];
+          console.log('asdfasd', e, e.response, e.message);
+
+          if (!e.response) {
+            return ['Oops! There was an problem on our end. Please try agin later.'];
+          }
+
+          Object.values(e.response.data).forEach(message => {
+            if (Array.isArray(message)) {
+              message.forEach(m => {
+                errorMessages.push(m);
+              });
+            }
+          });
+          return errorMessages;
         }
       },
       REGISTER: async (store, user) => {
@@ -2502,6 +2515,10 @@ const authMethods = (store, config) => {
 
     register(user) {
       return store.dispatch("authenticator/REGISTER", user);
+    },
+
+    redirectUrl() {
+      return store.getters["authenticator/redirectUrl"];
     },
 
     state() {
