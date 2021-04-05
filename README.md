@@ -106,39 +106,39 @@ For more information on the `meta` attribute, have a look at
 ## Configuration Options
 
 #### API_BASE_URL
-default   `'/login/'`
+Default:   `'/login/'`
 
-HTTP verb    `POST`
+HTTP verb:    `POST`
 
 This sets the name of your backend's API endpoint for logging in.
 
 #### logoutEndpoint
-default      `'/logout/'`
+Default:      `'/logout/'`
 
-HTTP verb    `POST`
+HTTP verb:    `POST`
 
 This sets the name of your backend's API endpoint for logging out.
 
-#### tokenRefreshEndpoint:
-default       `'/token/refresh'`
+#### tokenRefreshEndpoint
+Default:       `'/token/refresh'`
 
-HTTP verb     `POST`
+HTTP verb:     `POST`
 
 For refreshing the JWT access token. This will usually be done automatically
 by `vue-auth-jwt` when appropriate.
 
-#### userEndpoint:
-default       `'/user/'`
+#### userEndpoint
+Default:       `'/user/'`
 
-HTTP verb     `GET`
+HTTP verb:     `GET`
 
 Endpoint for obtaing details about the logged in user. Should return
 an object containing user details (e.g. first_name, username, email, etc.).
 
-#### loginRoute:
-default       `'/login'`
+#### loginRoute
+Default:       `'/login'`
 
-HTTP verb     `None`
+HTTP verb:     `None`
 
 Rather than being an endpoint on the external API, the `loginRoute` configuration option
 is for the login page i.e. it is one of the internal Vue router paths. If
