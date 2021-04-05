@@ -5,8 +5,8 @@
 
 # Vue Auth JWT
 
-Vue Auth JWT is a lightweight Vue plugin for communicating your Vue application with
-a JWT (JSON Web Token) powered authentication backend.
+*A lightweight Vue plugin for communicating your Vue application with
+a JWT (JSON Web Token) powered authentication backend.*
 
 It provides simple simple Vuex-based methods that apply the correct credentials and request
 styles to easily add the JWT access tokens in the request headers, and refresh them
