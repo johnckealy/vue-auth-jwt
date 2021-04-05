@@ -1,6 +1,6 @@
 
 
-<img src="https://raw.githubusercontent.com/johnckealy/vue-auth-jwt/main/logo/logo.png"
+<img src="https://raw.githubusercontent.com/johnckealy/vue-auth-jwt/main/logo/logo.svg"
      alt="logo image" width="160" />
 
 # Vue Auth JWT
