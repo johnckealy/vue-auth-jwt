@@ -105,21 +105,21 @@ For more information on the `meta` attribute, have a look at
 
 ## Configuration Options
 
-##### API_BASE_URL
+#### API_BASE_URL
 default   `'/login/'`
 
 HTTP verb    `POST`
 
 This sets the name of your backend's API endpoint for logging in.
 
-##### logoutEndpoint
+#### logoutEndpoint
 default      `'/logout/'`
 
 HTTP verb    `POST`
 
 This sets the name of your backend's API endpoint for logging out.
 
-##### tokenRefreshEndpoint:
+#### tokenRefreshEndpoint:
 default       `'/token/refresh'`
 
 HTTP verb     `POST`
@@ -127,7 +127,7 @@ HTTP verb     `POST`
 For refreshing the JWT access token. This will usually be done automatically
 by `vue-auth-jwt` when appropriate.
 
-##### userEndpoint:
+#### userEndpoint:
 default       `'/user/'`
 
 HTTP verb     `GET`
@@ -135,7 +135,7 @@ HTTP verb     `GET`
 Endpoint for obtaing details about the logged in user. Should return
 an object containing user details (e.g. first_name, username, email, etc.).
 
-##### loginRoute:
+#### loginRoute:
 default       `'/login'`
 
 HTTP verb     `None`
@@ -167,7 +167,7 @@ You can use this function just as you would any normal `axios` request.
 
 Sample Usage
 ```javascript
-  asycn getUserDetails() {
+  async getUserDetails() {
     return await this.$auth.axios({ url: '/user/', method: 'GET' });
   }
 ```
@@ -183,16 +183,24 @@ to refresh them if they are not.
 #### `login()`
 
 Should be attached to the submit button of the login form.
-Returns a boolean indicating the success or failure of the
-request.
+Returns the response from the server, or the error messages
+if the request failed.
+
+`Input Parameters`: Object containing `username` and `password`
+fields, formatted to match your backend's expectations.
 
 Sample Usage
 ```javascript
   async onSubmitLogin() {
-    const loginOk = await this.$auth.login({
-      username: 'bojangles',
-      password: 'secret123'
-    })
+    try {
+      const reponse = await this.$auth.login({
+        username: 'bojangles',
+        password: 'secret123'
+      })
+    }
+    catch {
+      this.errorMessages = response;
+    }
   }
 ```
 
@@ -208,6 +216,32 @@ Sample Usage
 ```
 
 
+#### `register()`
+
+Register a new user.
+
+`Input Parameters`: Object containing registration fields
+(e.g. email, password, confirm-password, name), formatted
+to match the backend's expectations.
+
+Sample Usage
+```javascript
+    async onSubmitRegistration() {
+      const resp = await this.$auth.register({
+        email: this.email,
+        first_name: this.firstName,
+        password1: this.password1,
+        password2: this.password2,
+      });
+      if (resp.status == 201) {
+        console.log("Account created successfully");
+        this.$router.push("/");
+      } else {
+        console.log('Registration failed!)
+        this.errorMessages = resp;
+      }
+    }
+```
 
 #### `user()`
 
@@ -229,4 +263,5 @@ Sample Usage
 
 `vue-auth-jwt` is a very young open source tool, and I would be very
 happy to welcome contributors. If you would like
-to contribute, send me an email at `johnckealy.dev@gmail.com`.
+to contribute, feel free to open an issue or pull request.
+You can also send me an email at `johnckealy.dev@gmail.com`.

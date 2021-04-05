@@ -64,7 +64,7 @@ const authModule = (config) => {
         catch (e) {
           let errorMessages = [];
           if (!e.response) {
-            return ['Oops! There was an problem on our end. Please try agin later.']
+            return ['Oops! There was an problem on our end. Please try again later.']
           }
           Object.values(e.response.data).forEach(message => {
             if (Array.isArray(message)) {
