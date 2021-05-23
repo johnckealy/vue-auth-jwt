@@ -53,7 +53,7 @@ Then instantiate the plugin by adding:
 
 ```javascript
     const config = {
-      API_BASE_URL: 'https://api.example.com:8000/',
+      API_BASE_URL: 'https://127.0.0.1:8000/',
     }
 
     Vue.use(Auth, { router, store, config  });
@@ -241,7 +241,7 @@ Sample Usage
 
 Some backends will insist that httpOnly cookies can be sent with certain conditions. The `same-site` attribute can, for example, mean that you must either use the same domain OR use https.
 
-Setting up SSL in a development environment is one way to address this. There are usually libararies that can help with this. For example, `django-sslserver` can do this for a Django-powered backend. 
+Setting up SSL in a development environment is one way to address this. There are usually libararies that can help with this. For example, `django-sslserver` can do this for a Django-powered backend.
 
 If you'd like to read more about the `same-site` attribute, please follow [this link](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite).
 
