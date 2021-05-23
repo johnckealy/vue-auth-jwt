@@ -10,7 +10,7 @@
 Vue Auth JWT is a lightweight Vue plugin for communicating your Vue application with
 a JWT (JSON Web Token) powered authentication backend.
 
-It provides simple simple Vuex-based methods that apply the correct credentials and request
+It provides simple Vuex-based methods that apply the correct credentials and request
 styles to easily add the JWT access tokens in the request headers, and refresh them
 when appropriate. 
 
@@ -29,7 +29,7 @@ and be sure CORS is set up correctly.
 
 You will also need:
 
-– A working Vue.js application (including Vue frameworks, like Nuxt or Quasar)
+– A working Vue.js application (including Vue frameworks, like Nuxt or QuasarFramework)
 
 – A working JWT backend, such as Django Simple JWT
 
@@ -66,29 +66,6 @@ The only mandatory endpoint to add to the configuration is `API_BASE_URL`,
 but it is likely that others will also be necessary to serve even basic JWT backends.
 The full list of configuation options can be found in the `Configuration Options`
 section below.
-
-
-### TLS and `same-site` concerns
-
-Although `vue-auth-jwt` has been written with decoupling between frontend and backend in mind,
-it may be necessary to host both frontend and backend at the same domain. However, subdomains
-are fine, so if you run your site at `example.com`, you can still host your backend at `api.example.com`.
-
-While using these subdomain names will be trivial in production, setting up a development environment with domain names
-and SSL is less obvious.
-
-You can set the localhost IP address (usually 127.0.0.1)
-to a custom domain in your hosts file (this will be `/etc/hosts` in Unix), and then run your dev environment at
-something like
-```
-https://api.example.com:8000
-```
-
-Note the `https` here. It may also be necessary to use SSL/TLS (even in your development environment)
-and run your backend within the remit of the `same-site` attribute. There exist libraries
-(like `django-sslserver` in Python) that will allow you to run with a self-signed SSL certificate for development.
-
-If you'd like to read more about the `same-site` attribute, please follow [this link](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite).
 
 
 ### Authorization and redirection
@@ -259,6 +236,14 @@ Sample Usage
   }
 ```
 
+
+### TLS and `same-site` concerns
+
+Some backends will insist that httpOnly cookies can be sent with certain conditions. The `same-site` attribute can, for example, mean that you must either use the same domain OR use https.
+
+Setting up SSL in a development environment is one way to address this. There are usually libararies that can help with this. For example, `django-sslserver` can do this for a Django-powered backend. 
+
+If you'd like to read more about the `same-site` attribute, please follow [this link](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite).
 
 
 # Contributions
